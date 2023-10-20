@@ -1,0 +1,163 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+# Load the ggplot2 library for creating visualizations
+library(ggplot2)
+
+# Read the CSV file containing player data
+data <- read.csv("/Users/jamiefarrell/Downloads/archive (4)/MLS_pl_2021_stats_w_2022_salaries.csv")
+print(data)
+
+# Subsets for each position (excluding goalkeepers)
+forwards <- subset(data, position == "Forward")
+print(forwards)
+midfielders <- subset(data, position == "Midfielder")
+print(midfielders)
+defenders <- subset(data, position == "Defender")
+print(defenders)
+
+# Calculate average wages for different categories
+allAverageWage <- mean(data$X2021.guaranteed.comp)
+fAverageWage <- mean(forwards$X2021.guaranteed.comp)
+mAverageWage <- mean(midfielders$X2021.guaranteed.comp)
+dAverageWage <- mean(defenders$X2021.guaranteed.comp)
+print(allAverageWage)
+print(fAverageWage)
+print(mAverageWage)
+print(dAverageWage)
+
+# Calculate total wages for different categories
+allWage <- sum(data$X2021.guaranteed.comp)
+fWage <- sum(forwards$X2021.guaranteed.comp)
+mWage <- sum(midfielders$X2021.guaranteed.comp)
+dWage <- sum(defenders$X2021.guaranteed.comp)
+print(allWage)
+print(fWage)
+print(mWage)
+print(dWage)
+
+# Calculate average statistics for different categories
+fAverageGoal <- mean(forwards$goals)
+mAverageAssist <- mean(midfielders$assist)
+dAverageCleanSheet <- mean(defenders$clean_sheet)
+print(fAverageGoal)
+print(mAverageAssist)
+print(dAverageCleanSheet)
+
+# Calculate total statistics for different categories
+fGoal <- sum(forwards$goals)
+mAssist <- sum(midfielders$assist)
+dCleanSheet <- sum(defenders$clean_sheet)
+print(fGoal)
+print(mAssist)
+print(dCleanSheet)
+
+# Calculate the average minutes played for the entire dataset
+averageMin <- mean(data$mins)
+print(averageMin)
+
+# Identify outliers for all players (based on wage and minutes played)
+minsOutlier <- data[data$X2021.guaranteed.comp. > 5000000 & data$mins > 2000, ]
+
+# Create a scatterplot for all players with labeled outliers
+ggplot(data, aes(x = mins, y = X2021.guaranteed.comp.)) +
+  geom_point() +
+  geom_text(data = minsOutlier, aes(label = name), vjust = 0.5) +
+  labs(title = "Average Wage with Mins played", x = "Minutes", y = "2021 Wage") +
+  theme_minimal()
+
+# Calculate the ratio of total wages to total minutes played for the entire dataset
+wageToMinuteRatio <- allWage / sum(data$mins)
+print(wageToMinuteRatio)
+
+# Identify outliers for forwards (based on wage and goals)
+fOutliers <- forwards[forwards$X2021.guaranteed.comp < 1050000 & forwards$goals > 15, ]
+
+# Create a scatterplot for forwards with labeled outliers
+ggplot(forwards, aes(x = goals, y = X2021.guaranteed.comp.)) +
+  geom_point() +
+  geom_text(data = fOutliers, aes(label = name), vjust = 0.5) +
+  labs(title = "Forwards Goals With Wage", x = "Goals", y = "2021 Wage") +
+  theme_minimal()
+
+# Identify outliers for midfielders (based on wage and assists)
+mOutliers <- midfielders[midfielders$X2021.guaranteed.comp < 1050000 & midfielders$assist > 11, ]
+
+# Create a scatterplot for midfielders with labeled outliers
+ggplot(midfielders, aes(x = assist, y = X2021.guaranteed.comp.)) +
+  geom_point() +
+  geom_text(data = mOutliers, aes(label = name), vjust = 0.5) +
+  labs(title = "Midfielder Assists With Wage", x = "Assists", y = "2021 Wage") +
+  theme_minimal()
+
+# Identify outliers for defenders (based on wage and clean sheets)
+dOutliers <- defenders[defenders$X2021.guaranteed.comp < 550000 & defenders$clean_sheet > 11, ]
+
+# Create a scatterplot for defenders with labeled outliers
+ggplot(defenders, aes(x = clean_sheet, y = X2021.guaranteed.comp)) +
+  geom_point() +
+  geom_text(data = dOutliers, aes(label = name), vjust = 0.5) +
+  labs(title = "Defenders Clean Sheets With Wage", x = "Clean Sheets", y = "2021 Wage") +
+  theme_minimal()
+
+# Calculate the price per goal for forwards, price per assist for midfielders, and price per clean sheet for defenders
+pricePerGoal <- fWage / fGoal
+pricePerAssist <- mWage / mAssist
+pricePerCleanSheet <- dWage / dCleanSheet
+print(pricePerGoal)
+print(pricePerAssist)
+print(pricePerCleanSheet)
+
+# Print the names of the identified outliers for each category
+print(fOutliers$name)
+print(mOutliers$name)
+print(dOutliers$name)
+
+# Combine the names of all outliers into separate strings for each category
+all_outliers_forwards <- paste(fOutliers$X2021.guaranteed.comp, collapse = ", ")
+all_outliers_midfielders <- paste(mOutliers$X2021.guaranteed.comp, collapse = ", ")
+all_outliers_defenders <- paste(dOutliers$X2021.guaranteed.comp, collapse = ", ")
+
+# Combine all outlier strings and print them
+all_outliers <- c(all_outliers_forwards, all_outliers_midfielders, all_outliers_defenders)
+cat(all_outliers)
+
+# Additional analysis for forwards with more than 800 minutes played
+forwards800Min <- forwards[forwards$mins > 800, ]
+
+# Identify bad outliers for forwards with more than 800 minutes played (based on wage, goals, and minutes played)
+fBadOutliers <- forwards[forwards$X2021.guaranteed.comp > 700000 & forwards$goals < 3 & forwards$mins > 800, ]
+
+# Create a scatterplot for forwards with more than 800 minutes played and labeled bad outliers
+ggplot(forwards800Min, aes(x = goals, y = X2021.guaranteed.comp)) +
+  geom_point() +
+  geom_text(data = fBadOutliers, aes(label = name), vjust = 0.5) +
+  labs(title = "Forwards Goals With Wage (800 mins played at least)", x = "Goals", y = "2021 Wage") +
+  theme_minimal()
+
+# Additional analysis for midfielders with more than 800 minutes played
+midfielders800Min <- midfielders[midfielders$mins > 800, ]
+
+# Identify bad outliers for midfielders with more than 800 minutes played (based on wage, assists, and minutes played)
+mBadOutliers <- midfielders[midfielders$X2021.guaranteed.comp > 1200000 & midfielders$assist < 3 & midfielders$mins > 800, ]
+
+# Create a scatterplot for midfielders with more than 800 minutes played and labeled bad outliers
+ggplot(midfielders800Min, aes(x = assist, y = X2021.guaranteed.comp)) +
+  geom_point() +
+  geom_text(data = mBadOutliers, aes(label = name), vjust = 0.5) +
+  labs(title = "Midfielders Ass
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
